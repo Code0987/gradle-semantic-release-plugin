@@ -21,7 +21,7 @@ export function getCommand(cwd: string): Promise<string> {
           reject(err);
         }
       } else {
-        resolve(join(cwd, "gradlew"));
+        resolve("." + join(cwd, "gradlew"));
       }
     });
   });
