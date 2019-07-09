@@ -6,11 +6,12 @@ module.exports = async function verifyConditions(
   context: IContext
 ) {
   const { cwd, env, logger } = context;
-  const command = await getCommand(cwd);
+  const wd = (pluginConfig as any).wd ||cwd;
+  const command = await getCommand(wd);
   if (command !== "./gradlew") {
-    throw new Error(`Gradle wrapper not found at ${cwd}`);
+    throw new Error(`Gradle wrapper not found at ${wd}`);
   }
-  const task = await getTaskToPublish(cwd, env as NodeJS.ProcessEnv, logger);
+  const task = await getTaskToPublish(wd, env as NodeJS.ProcessEnv, logger);
   if (task === "") {
     throw new Error("No task found that can publish artifacts");
   }
