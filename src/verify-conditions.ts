@@ -1,3 +1,4 @@
+import { join } from "path";
 import { IContext } from "./definition";
 import { getCommand, getTaskToPublish } from "./gradle";
 
@@ -6,7 +7,7 @@ module.exports = async function verifyConditions(
   context: IContext
 ) {
   const { cwd, env, logger } = context;
-  const wd = (pluginConfig as any).wd ||cwd;
+  const wd = join(cwd, ((pluginConfig as any).wd || ''));
   const command = await getCommand(wd);
   if (command !== "./gradlew") {
     throw new Error(`Gradle wrapper not found at ${wd}`);
