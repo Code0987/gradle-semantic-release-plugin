@@ -11,9 +11,9 @@ Gradle Artifactory is used for release.`;
  * @param {string} cwd the path of current working directory
  * @return A promise that resolves name of command to trigger Gradle
  */
-export function getCommand(cwd: string): Promise<string> {
+export function getCommand(cwd: string, pd: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
-    access(join(cwd, "gradlew"), constants.F_OK, err => {
+    access(join(cwd, join(pd, "gradlew")), constants.F_OK, err => {
       if (err) {
         if (err.code === "ENOENT") {
           resolve("gradle");
@@ -21,7 +21,7 @@ export function getCommand(cwd: string): Promise<string> {
           reject(err);
         }
       } else {
-        resolve("." + join(cwd, "gradlew"));
+        resolve("./" + join(pd, "gradlew"));
       }
     });
   });
@@ -33,11 +33,12 @@ export function getCommand(cwd: string): Promise<string> {
  */
 export function getTaskToPublish(
   cwd: string,
+  pd: string,
   env: NodeJS.ProcessEnv,
   logger: Signale
 ): Promise<string> {
   return new Promise(async (resolve, reject) => {
-    const command = await getCommand(cwd);
+    const command = await getCommand(cwd, pd);
     const child = spawn(command, ["tasks", "-q"], {
       cwd,
       env,
@@ -97,10 +98,11 @@ export function getTaskToPublish(
  */
 export function getVersion(
   cwd: string,
+  pd: string,
   env: NodeJS.ProcessEnv
 ): Promise<string> {
   return new Promise(async (resolve, reject) => {
-    const command = await getCommand(cwd);
+    const command = await getCommand(cwd, pd);
     const child = spawn(command, ["properties", "-q"], {
       cwd,
       env,
@@ -134,12 +136,13 @@ export function getVersion(
 
 export function publishArtifact(
   cwd: string,
+  pd: string,
   env: NodeJS.ProcessEnv,
   logger: Signale
 ) {
   return new Promise(async (resolve, reject) => {
-    const command = getCommand(cwd);
-    const task = getTaskToPublish(cwd, env, logger);
+    const command = getCommand(cwd, pd);
+    const task = getTaskToPublish(cwd, pd, env, logger);
     const child = spawn(await command, [await task, "-q"], { cwd, env });
     child.on("close", code => {
       if (code !== 0) {
