@@ -39,7 +39,7 @@ export function getTaskToPublish(
 ): Promise<string> {
   return new Promise(async (resolve, reject) => {
     const command = await getCommand(cwd, pd);
-    const child = spawn(command, ["tasks", "-q"], {
+    const child = spawn(command, ["-p", pd, "tasks", "-q"], {
       cwd,
       env,
       stdio: ["inherit", "pipe"]
@@ -103,7 +103,7 @@ export function getVersion(
 ): Promise<string> {
   return new Promise(async (resolve, reject) => {
     const command = await getCommand(cwd, pd);
-    const child = spawn(command, ["properties", "-q"], {
+    const child = spawn(command, ["-p", pd, "properties", "-q"], {
       cwd,
       env,
       stdio: ["inherit", "pipe"]
@@ -143,7 +143,7 @@ export function publishArtifact(
   return new Promise(async (resolve, reject) => {
     const command = getCommand(cwd, pd);
     const task = getTaskToPublish(cwd, pd, env, logger);
-    const child = spawn(await command, [await task, "-q"], { cwd, env });
+    const child = spawn(await command, ["-p", pd, await task, "-q"], { cwd, env });
     child.on("close", code => {
       if (code !== 0) {
         reject(`Failed to publish: Gradle failed with status code ${code}.`);
