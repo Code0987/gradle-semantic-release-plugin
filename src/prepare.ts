@@ -20,7 +20,7 @@ export async function updateVersion(
 
 export default async function prepare(pluginConfig: object, context: IContext) {
   const { cwd, env, nextRelease } = context;
-  const pd = (pluginConfig as any).wd || '';
+  const pd = (pluginConfig as any).pd || '';
   await updateVersion(cwd, nextRelease.version);
   const version = await getVersion(cwd, pd, env as NodeJS.ProcessEnv);
   if (version !== nextRelease.version) {
