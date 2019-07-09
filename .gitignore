@@ -1,8 +1,5 @@
 .env
 
-lib/*.ts
-lib/*.js
-
 # Created by https://www.gitignore.io/api/node
 # Edit at https://www.gitignore.io/?templates=node
 
