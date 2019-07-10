@@ -55,10 +55,7 @@ export function getTaskToPublish(
     } else {
       let task = "";
       child.stdout.pipe(split()).on("data", (line: string) => {
-        if (t && t.length > 0 && line.trim() === t) {
-          if (task !== "") {
-            reject(new Error("Found multiple tasks to publish"));
-          }
+        if (t && t.length > 0 && line.startsWith(t)) {
           task = t;
         } else if (line.startsWith("artifactoryDeploy -")) {
           // Plugins Gradle Artifactory Plugin and Maven Publish Plugin are often used together
@@ -122,7 +119,7 @@ export function getVersion(
 ): Promise<string> {
   return new Promise(async (resolve, reject) => {
     const command = await getCommand(cwd, pd);
-    const child = spawn(command, ['-q', 'properties'], {
+    const child = spawn(command, ['-q', ':properties'], {
       cwd: join(cwd, pd),
       env,
       shell: process.platform === 'win32',
