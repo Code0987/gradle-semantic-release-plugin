@@ -7,5 +7,6 @@ module.exports = async function publish(
 ) {
   const { cwd, env, logger } = context;  
   const pd = (pluginConfig as any).pd || '';
-  await publishArtifact(cwd, pd, env as NodeJS.ProcessEnv, logger);
+  const t = (pluginConfig as any).t || '';
+  await publishArtifact(cwd, pd, t, env as NodeJS.ProcessEnv, logger);
 };

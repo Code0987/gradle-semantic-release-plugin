@@ -21,7 +21,11 @@ export function getCommand(cwd: string, pd: string): Promise<string> {
           reject(err);
         }
       } else {
-        resolve("./" + join(pd, "gradlew"));
+        if (process.platform === 'win32') {
+          resolve(join(pd, "gradlew.bat"));
+        } else {
+          resolve("./" + join(pd, "gradlew"));
+        }
       }
     });
   });
@@ -34,22 +38,29 @@ export function getCommand(cwd: string, pd: string): Promise<string> {
 export function getTaskToPublish(
   cwd: string,
   pd: string,
+  t: string,
   env: NodeJS.ProcessEnv,
   logger: Signale
 ): Promise<string> {
   return new Promise(async (resolve, reject) => {
     const command = await getCommand(cwd, pd);
-    const child = spawn(command, ["-p", pd, "tasks", "-q"], {
+    const child = spawn(command, ["-p " + pd, "tasks --all", "-q"], {
       cwd,
       env,
-      stdio: ["inherit", "pipe"]
+      shell: process.platform === 'win32',
+      stdio: ["inherit", "pipe"],
     });
     if (child.stdout === null) {
       reject(new Error("Unexpected error: stdout of subprocess is null"));
     } else {
       let task = "";
       child.stdout.pipe(split()).on("data", (line: string) => {
-        if (line.startsWith("artifactoryDeploy -")) {
+        if (t && t.length > 0 && line.trim() === t) {
+          if (task !== "") {
+            reject(new Error("Found multiple tasks to publish"));
+          }
+          task = t;
+        } else if (line.startsWith("artifactoryDeploy -")) {
           // Plugins Gradle Artifactory Plugin and Maven Publish Plugin are often used together
           if (task !== "" && task !== "publish") {
             reject(new Error("Found multiple tasks to publish"));
@@ -103,10 +114,11 @@ export function getVersion(
 ): Promise<string> {
   return new Promise(async (resolve, reject) => {
     const command = await getCommand(cwd, pd);
-    const child = spawn(command, ["-p", pd, "properties", "-q"], {
+    const child = spawn(command, ["-p " + pd, "properties", "-q"], {
       cwd,
       env,
-      stdio: ["inherit", "pipe"]
+      shell: process.platform === 'win32',
+      stdio: ["inherit", "pipe"],
     });
     if (child.stdout === null) {
       reject(new Error("Unexpected error: stdout of subprocess is null"));
@@ -137,13 +149,14 @@ export function getVersion(
 export function publishArtifact(
   cwd: string,
   pd: string,
+  t: string,
   env: NodeJS.ProcessEnv,
   logger: Signale
 ) {
   return new Promise(async (resolve, reject) => {
     const command = getCommand(cwd, pd);
-    const task = getTaskToPublish(cwd, pd, env, logger);
-    const child = spawn(await command, ["-p", pd, await task, "-q"], { cwd, env });
+    const task = getTaskToPublish(cwd, pd, t, env, logger);
+    const child = spawn(await command, ["-p " + pd, await task, "-q"], { cwd, env , shell: process.platform === 'win32'});
     child.on("close", code => {
       if (code !== 0) {
         reject(`Failed to publish: Gradle failed with status code ${code}.`);
