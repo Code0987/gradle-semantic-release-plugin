@@ -96,6 +96,14 @@ export function getTaskToPublish(
         }
         resolve(task);
       });
+      child.stdout.on('data', (data: string) => {
+        logger.info(data);
+      });
+      if (child.stderr) {
+        child.stderr.on('data', (data: string) => {
+          logger.info(data);
+        });
+      }
       child.on("error", err => {
         reject(err);
       });
@@ -156,7 +164,15 @@ export function publishArtifact(
   return new Promise(async (resolve, reject) => {
     const command = getCommand(cwd, pd);
     const task = getTaskToPublish(cwd, pd, t, env, logger);
-    const child = spawn(await command, ["-p " + pd, await task, "-q"], { cwd, env , shell: process.platform === 'win32'});
+    const child = spawn(await command, ["-p " + pd, await task, "-q"], { cwd, env, shell: process.platform === 'win32' });
+    child.stdout.on('data', (data: string) => {
+      logger.info(data);
+    });
+    if (child.stderr) {
+      child.stderr.on('data', (data: string) => {
+        logger.info(data);
+      });
+    }
     child.on("close", code => {
       if (code !== 0) {
         reject(`Failed to publish: Gradle failed with status code ${code}.`);
