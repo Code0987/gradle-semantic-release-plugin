@@ -15,8 +15,12 @@ export async function updateVersion(
   const path = join(cwd, join(pd, vf));
   const prop = (await parseProperties(path, { path: true })) as {
     version: string;
+    versionCode: number;
   };
   prop.version = version;
+  const digits = version.trim().split('.').map(x => parseInt(x, 10));
+  const code = (Math.pow(10, 10 - 2) * digits[0]) + (Math.pow(10, 5 - 1) * digits[1]) + (digits[2]);
+  prop.versionCode = code;
   await writeProperties(prop, { path });
 }
 
