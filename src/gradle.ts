@@ -44,7 +44,7 @@ export function getTaskToPublish(
 ): Promise<string> {
   return new Promise(async (resolve, reject) => {
     const command = await getCommand(cwd, pd);
-    const child = spawn(command, ["tasks --all", "-q"], {
+    const child = spawn(command, ['-q', ':tasks --all'], {
       cwd: join(cwd, pd),
       env,
       shell: process.platform === 'win32',
@@ -122,7 +122,7 @@ export function getVersion(
 ): Promise<string> {
   return new Promise(async (resolve, reject) => {
     const command = await getCommand(cwd, pd);
-    const child = spawn(command, ["properties", "-q"], {
+    const child = spawn(command, ['-q', 'properties'], {
       cwd: join(cwd, pd),
       env,
       shell: process.platform === 'win32',
@@ -164,7 +164,7 @@ export function publishArtifact(
   return new Promise(async (resolve, reject) => {
     const command = getCommand(cwd, pd);
     const task = getTaskToPublish(cwd, pd, t, env, logger);
-    const child = spawn(await command, [await task, "-q"], {
+    const child = spawn(await command, ['-q', await task], {
       cwd: join(cwd, pd),
       env,
       shell: process.platform === 'win32'
