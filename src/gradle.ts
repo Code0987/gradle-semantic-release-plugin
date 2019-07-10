@@ -22,9 +22,9 @@ export function getCommand(cwd: string, pd: string): Promise<string> {
         }
       } else {
         if (process.platform === 'win32') {
-          resolve(join(pd, "gradlew.bat"));
+          resolve("gradlew.bat");
         } else {
-          resolve("./" + join(pd, "gradlew"));
+          resolve("./gradlew");
         }
       }
     });
