@@ -96,12 +96,12 @@ export function getTaskToPublish(
         }
         resolve(task);
       });
-      child.stdout.on('data', (data: string) => {
-        logger.info(data);
+      child.stdout.on('data', (data: any) => {
+        logger.info(data.toString());
       });
       if (child.stderr) {
-        child.stderr.on('data', (data: string) => {
-          logger.info(data);
+        child.stderr.on('data', (data: any) => {
+          logger.info(data.toString());
         });
       }
       child.on("error", err => {
@@ -165,12 +165,12 @@ export function publishArtifact(
     const command = getCommand(cwd, pd);
     const task = getTaskToPublish(cwd, pd, t, env, logger);
     const child = spawn(await command, ["-p " + pd, await task, "-q"], { cwd, env, shell: process.platform === 'win32' });
-    child.stdout.on('data', (data: string) => {
-      logger.info(data);
+    child.stdout.on('data', (data: any) => {
+      logger.info(data.toString());
     });
     if (child.stderr) {
-      child.stderr.on('data', (data: string) => {
-        logger.info(data);
+      child.stderr.on('data', (data: any) => {
+        logger.info(data.toString());
       });
     }
     child.on("close", code => {
